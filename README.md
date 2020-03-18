@@ -2,6 +2,9 @@
 
 This repo contains tools, active and in development, for the CS classes at ISF.
 
+## cs9_student_setup
+Setup script and software for initial student setup at beginning of cs9 to download software, create filesystem, setup environment, etc.
+
 ## repoview
 Package to view updates to github assignment repos in bulk to manage commits, assignment progress, etc.
 
