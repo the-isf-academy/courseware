@@ -67,15 +67,17 @@ function install_homebrew {
     read -ra ADDR <<< "$brew_version" #parse version line from response
     IFS=' '
     read -ra ADDR1 <<< ${ADDR[0]} #parse version number from top line
-    vercomp ${ADDR1[${#ADDR1[@]}-1]} $1 
+    LASTELEM=${#ADDR1[@]}-1
+    vercomp ${ADDR1[$LASTELEM]} $1 
     if [[ $? == 2 ]]; then
-        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" > /dev/null
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" > /dev/null
         brew_version=$( brew --version )
         IFS='\n' # new line is set as delimiter
         read -ra ADDR <<< "$brew_version" #parse version line from response
         IFS=' '
         read -ra ADDR1 <<< ${ADDR[0]} #parse version number from top line
-        vercomp ${ADDR1[${#ADDR1[@]}-1]} $1 
+        LASTELEM=${#ADDR1[@]}-1
+        vercomp ${ADDR1[$LASTELEM]} $1 
         if [[ $? == 2 ]]; then
             printf "${RED}Output from version request: %s${NC}\n" "$brew_version"
             printf "${RED}Unexpected output from Homebrew installation. Please ask an instructor for help. ${NC}"
