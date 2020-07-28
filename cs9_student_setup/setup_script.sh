@@ -2,11 +2,13 @@
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-BLUE='\033[0;34m'
+BLUE='\e[34m'
 YELLOW='\033[1;33m'
 PURPLE='\033[1;35m'
 NC='\033[0m'
 CLEAR_LINE='\r\033[K'
+BOLD='\e[1m'
+NORMAL='\e[21m'
 
 
 # Exit if any subcommand fails
@@ -114,7 +116,7 @@ function install_brew_package {
 
 # file system creation
 function filesys {
-    printf "${CLEAR_LINE}${BLUE}Creating file system...${NC}"
+    printf "${CLEAR_LINE}🗂 ${BLUE}Setting up cs9 folder on Desktop...${NC}"
     DIR=/Users/`whoami`/Desktop/cs9/unit_00
     if [ ! -d "$DIR" ]; then
         mkdir -p $DIR
@@ -124,7 +126,7 @@ function filesys {
 
 function setup_venv {
     # Setting up virtual environment
-    printf "${CLEAR_LINE}${BLUE}Creating virtual environment...${NC}"
+    printf "${CLEAR_LINE}🗂 ${BLUE}Creating virtual environment...${NC}"
     DIR=/Users/`whoami`/Desktop/cs9
     cd $DIR
     python3 -m venv env
@@ -172,30 +174,39 @@ vercomp () {
     return 0
 }
 
-printf "🔍 ${BLUES}Checking system requirements..."
+printf "👋  ${BOLD}${PURPLE}Welcome to the CS9 setup script! Running this script will download some\n"
+printf "|   new software and get your computer setup up for the class. Some of the\n"
+printf "|   steps may take a while to complete.\n"
+printf "|   If you get stuck or have any questions, ask a teacher.\n"
+printf "|\n"
+printf "|   Note: the setup may ask for your password. As a security measure, you\n"
+printf "|   won't see any characters when you type it in.${NC}${NORMAL}\n"
+read -p "Ready to begin? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+
+printf "🔍 ${BLUE}Checking system requirements..."
 set_ownership
 macos_version_check 10.12
-printf "${CLEAR_LINE}✔️  ${GREEN}System requirements passed!${NC}\n"
+printf "${CLEAR_LINE}👍  ${GREEN}System requirements passed!${NC}\n"
 
 printf "💻 ${BLUE}Installing Xcode command line tools...${NC}"
 install_xcode 2354
-printf "${CLEAR_LINE}✔️  ${GREEN}Xcode command line tools installed!${NC}\n"
+printf "${CLEAR_LINE}👍  ${GREEN}Xcode command line tools installed!${NC}\n"
 
 printf "🍺 ${BLUE}Installing Homebrew...${NC}"
 install_homebrew 2.4.8
-printf "${CLEAR_LINE}✔️  ${GREEN}Homebrew installed!${NC}\n"
+printf "${CLEAR_LINE}👍  ${GREEN}Homebrew installed!${NC}\n"
 
 printf "🔨 ${BLUE}Installing brew packages...${NC}"
 install_brew_package python3 3.7.7
 install_brew_package direnv 2.20.2
 install_brew_package git 2.27
 install_brew_package atom 0 cask
-printf "${CLEAR_LINE}✔️  ${GREEN}Brew packages installed!${NC}\n"
+printf "${CLEAR_LINE}👍  ${GREEN}Brew packages installed!${NC}\n"
 
-printf "🗂 ${BLUE}Setting up file environment for class...${NC}"
+printf "🗂 ${BLUE}Setting up cs9 folder on Desktop...${NC}"
 filesys
 setup_venv
-printf "${CLEAR_LINE}✔️  ${GREEN}File environment created!${NC}\n"
+printf "${CLEAR_LINE}👍  ${GREEN}cs9 folder created!${NC}\n"
 
 printf "${PURPLE}Your computer is configured! Please restart Terminal. ${NC}\n"
 exit 0
