@@ -16,10 +16,13 @@ NORMAL='\e[21m'
 
 function set_ownership {
     printf "${CLEAR_LINE} 🔍 ${BLUE}Giving user write permission local directory..."
-    #changing ownership of /usr/local/etc directories
-    sudo chown -R $(whoami) /usr/local/etc
-    #giving user write permission
-    chmod u+w /usr/local/etc
+    DIR=/usr/local/etc
+    if [ -d "$DIR" ]; then
+        #changing ownership of /usr/local/etc directories
+        sudo chown -R $(whoami) $DIR
+        #giving user write permission
+        chmod u+w $DIR
+    fi
 }
 
 function macos_version_check {
@@ -126,7 +129,7 @@ function filesys {
 
 function setup_venv {
     # Setting up virtual environment
-    printf "${CLEAR_LINE}🗂 ${BLUE}Creating virtual environment...${NC}"
+    printf "${CLEAR_LINE}🗂  ${BLUE}Creating virtual environment...${NC}"
     DIR=/Users/`whoami`/Desktop/cs9
     cd $DIR
     python3 -m venv env
