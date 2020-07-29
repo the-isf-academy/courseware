@@ -31,11 +31,13 @@ function macos_version_check {
     os_version=$( defaults read loginwindow SystemVersionStampAsString )
     vercomp $os_version $1 
     if [[ $? == 2 ]]; then
-        printf "${CLEAR_LINE}${RED}You are running macOS verion %s.\n" $os_version
-        printf "${RED}Installing Homebrew requires macOS version $1 or higher. Please ask an instructor for help. ${NC}"
-        read -p "Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+        printf "${CLEAR_LINE}$┌────── {RED}You are running macOS verion %s.\n" $os_version
+        printf "│       ${RED}Installing Homebrew requires macOS version $1 or higher. Please ask an instructor for help. ${NC}"
+        read -p "│       Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
         printf "🔍  ${BLUE}Checking system requiremets...${NC}"
+        return 1
     fi
+    return 0
 }
 
 function install_xcode  {
@@ -44,44 +46,39 @@ function install_xcode  {
     STR="xcode-select: note: install requested for command line developer tools"
     while [[ "$CHECK" == "$STR" ]];
     do
-        #osascript -e 'tell app "System Events" to display dialog "Xcode command-line tools must be installed before continuing. Please install "xcode-select" from the other window. Click continue once the installation finishes." buttons "Continue" default button 1 with title "cs9 Setup Script"' &> /dev/null
+        sleep 5
         CHECK=$((xcode-\select --install) 2>&1)
     done
     if ! command -v xcode-select > /dev/null; then
-        printf "${RED}Unexpected output from Xcode installation. Please ask an instructor for help. ${NC}"
-        read -p "Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+        printf "${CLEAR_LINE}┌────── ${RED}Unexpected output from Xcode installation. Please ask an instructor for help. ${NC}"
+        read -p "│       Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
         printf "💻  ${BLUE}Installing xcode command line tools...${NC}"
+        return 1
     fi
+    return 0
 }
 
 function install_homebrew {
     # Homebrew installation
     printf "${CLEAR_LINE}🍺  ${BLUE}Installing Homebrew... (this may take a while)${NC}"
     if ! command -v brew > /dev/null; then
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" > /dev/null
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" &> /dev/null
     fi
-    brew_version=$( brew --version )
-    IFS='\n' # new line is set as delimiter
-    read -ra ADDR <<< "$brew_version" #parse version line from response
-    IFS=' '
-    read -ra ADDR1 <<< ${ADDR[0]} #parse version number from top line
-    LASTELEM=${#ADDR1[@]}-1
-    vercomp ${ADDR1[$LASTELEM]} $1 
+    version=$( brew --version | sed -nEe 's/^[^0-9]*(([0-9]+\.)*[0-9]+).*/\1/p' | head -n 1 )
+    vercomp $version $1 
     if [[ $? == 2 ]]; then
         brew update &> /dev/null
-        brew_version=$( brew --version )
-        IFS='\n' # new line is set as delimiter
-        read -ra ADDR <<< "$brew_version" #parse version line from response
-        IFS=' '
-        read -ra ADDR1 <<< ${ADDR[0]} #parse version number from top line
-        LASTELEM=${#ADDR1[@]}-1
-        vercomp ${ADDR1[$LASTELEM]} $1 
+        version=$( brew --version | sed -nEe 's/^[^0-9]*(([0-9]+\.)*[0-9]+).*/\1/p' | head -n 1 )
+        vercomp $version $1 
         if [[ $? == 2 ]]; then
-            printf "${RED}Output from version request: %s${NC}\n" "$brew_version"
-            printf "${RED}Unexpected output from Homebrew installation. Please ask an instructor for help. ${NC}"
-            exit 1
+            printf "${CLEAR_LINE}┌────── ${RED}Output from version request: %s${NC}\n" "$version"
+            printf "│       ${RED}Unexpected output from Homebrew installation. Please ask an instructor for help. ${NC}"
+            read -p "│       Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+            printf "🍺  ${BLUE}Installing homebrew...${NC}"
+            return 1
         fi
     fi
+    return 0
 }
 
 function install_brew_package {
@@ -93,27 +90,25 @@ function install_brew_package {
             brew install $1 &> /dev/null
         fi
     fi
-    version=$( $1 --version )
-    IFS=' ' # space is set as delimiter
-    read -ra ADDR <<< "$version" #parse version number from response
-    vercomp ${ADDR[${#ADDR[@]}-1]} $2 
+    version=$( $1 --version | sed -nEe 's/^[^0-9]*(([0-9]+\.)*[0-9]+).*/\1/p' | head -n 1 )
+    vercomp $version $2 
     if [[ $? == 2 ]]; then
         if [[ -n $3 ]]; then
             brew cask upgrade $1 &> /dev/null
         else
             brew upgrade $1 &> /dev/null
         fi
-        version=$( $1 --version )
-        IFS=' ' # space is set as delimiter
-        read -ra ADDR <<< "$version" #parse version number from response
-        vercomp ${ADDR[${#ADDR[@]}-1]} $2 
+        version=$( $1 --version | sed -nEe 's/^[^0-9]*(([0-9]+\.)*[0-9]+).*/\1/p' | head -n 1 )
+        vercomp $version $2 
         if [[ $? == 2 ]]; then
-            printf "${CLEAR_LINE}${YELLOW}Output from version request: %s${NC}\n" "$version"
-            printf "${YELLOW}Expected version $2 or higher. Please ask an instructor for help. ${NC}\n"
-            read -p "Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+            printf "${CLEAR_LINE}┌────── ${YELLOW}Output from $1 version request: %s${NC}\n" "$version"
+            printf "│       ${YELLOW}Expected version $2 or higher. Please ask an instructor for help. ${NC}\n"
+            read -p "│       Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
             printf "🔨  ${BLUE}Installing $1...${NC}"
+            return 1
         fi
     fi
+    return 0
 }
 
 # file system creation
@@ -175,35 +170,58 @@ vercomp () {
     done
     return 0
 }
-
-printf "👋  ${BOLD}${PURPLE}Welcome to the CS9 setup script! Running this script will download some\n"
-printf "|   new software and get your computer setup up for the class. Some of the\n"
-printf "|   steps may take a while to complete.\n"
-printf "|   If you get stuck or have any questions, ask a teacher.\n"
-printf "|\n"
-printf "|   Note: the setup may ask for your password. As a security measure, you\n"
-printf "|   won't see any characters when you type it in.${NC}${NORMAL}\n"
-read -p "Ready to begin? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+printf "┌── 👋\n"
+printf "│   ${PURPLE}Welcome to the CS9 setup script! Running this script will download some${NC}\n"
+printf "│   ${PURPLE}new software and get your computer setup up for the class. Some of the${NC}\n"
+printf "│   ${PURPLE}steps may take a while to complete.${NC}\n"
+printf "│   ${PURPLE}If you get stuck or have any questions, ask a teacher.${NC}\n"
+printf "│\n"
+printf "│   ${PURPLE}Note: the setup may ask for your password. As a security measure, you${NC}\n"
+printf "│   ${PURPLE}won't see any characters when you type it in.${NC}\n"
+read -p "│   Ready to begin? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+printf "\n"
 
 printf "🔍  ${BLUE}Checking system requirements..."
 set_ownership
-macos_version_check 10.12
+if macos_version_check 10.12 ; then
 printf "${CLEAR_LINE}👍  ${GREEN}System requirements passed!${NC}\n"
+else
+printf "${CLEAR_LINE}✋  ${YELLOW}System requirements not met.${NC}\n"
+fi
 
 printf "💻  ${BLUE}Installing Xcode command line tools...${NC}"
-install_xcode 2354
-printf "${CLEAR_LINE}👍  ${GREEN}Xcode command line tools installed!${NC}\n"
+if install_xcode 2354 ; then
+    printf "${CLEAR_LINE}👍  ${GREEN}Xcode command line tools installed!${NC}\n"
+else
+    printf "${CLEAR_LINE}✋  ${YELLOW}Xcode command line tools may not have installed correctly!${NC}\n"
+fi
 
 printf "🍺  ${BLUE}Installing Homebrew...${NC}"
-install_homebrew 2.4.8
+if install_homebrew 2.4.9 ; then
 printf "${CLEAR_LINE}👍  ${GREEN}Homebrew installed!${NC}\n"
+else
+printf "${CLEAR_LINE}✋  ${YELLOW}Homebrew may not have installed correctly.${NC}\n"
+fi
 
 printf "🔨  ${BLUE}Installing brew packages...${NC}"
-install_brew_package python3 3.7.7
-install_brew_package direnv 2.20.2
-install_brew_package git 2.27
-install_brew_package atom 0 cask
-printf "${CLEAR_LINE}👍  ${GREEN}Brew packages installed!${NC}\n"
+STATUS=0
+if ! install_brew_package python3 3.7.8 ; then
+    STATUS=1
+fi
+if ! install_brew_package direnv 2.21.3 ; then
+    STATUS=1
+fi
+if ! install_brew_package git 2.28.0 ; then
+    STATUS=1
+fi
+if ! install_brew_package atom 0 cask ; then
+    STATUS=1
+fi
+if [ $STATUS == 0 ] ; then
+    printf "${CLEAR_LINE}👍  ${GREEN}Brew packages installed!${NC}\n"
+else
+    printf "${CLEAR_LINE}✋  ${YELLOW}Some brew packages may not have installed properly.${NC}\n"
+fi
 
 printf "🗂  ${BLUE}Setting up cs9 folder on Desktop...${NC}"
 filesys
