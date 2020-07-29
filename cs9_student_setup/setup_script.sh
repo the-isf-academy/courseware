@@ -15,7 +15,7 @@ NORMAL='\e[21m'
 #set -e
 
 function set_ownership {
-    printf "${CLEAR_LINE} 🔍 ${BLUE}Giving user write permission local directory..."
+    printf "${CLEAR_LINE}🔍  ${BLUE}Giving user write permission local directory..."
     DIR=/usr/local/etc
     if [ -d "$DIR" ]; then
         #changing ownership of /usr/local/etc directories
@@ -27,41 +27,39 @@ function set_ownership {
 
 function macos_version_check {
     # macOS version check, Hombrew require 10.12 or higher
-    printf "${CLEAR_LINE} 🔍 ${BLUE}Checking macOS version...${NC}"
+    printf "${CLEAR_LINE}🔍  ${BLUE}Checking macOS version...${NC}"
     os_version=$( defaults read loginwindow SystemVersionStampAsString )
     vercomp $os_version $1 
     if [[ $? == 2 ]]; then
         printf "${CLEAR_LINE}${RED}You are running macOS verion %s.\n" $os_version
         printf "${RED}Installing Homebrew requires macOS version $1 or higher. Please ask an instructor for help. ${NC}"
         read -p "Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
-        printf "🔍 ${BLUE}Checking system requiremets...${NC}"
+        printf "🔍  ${BLUE}Checking system requiremets...${NC}"
     fi
 }
 
 function install_xcode  {
-    printf "${CLEAR_LINE}${BLUE}Installing Xcode... (this may take a while)${NC}"
-    xcode_version=$( xcode-select --version )
-    IFS=' ' # space is set as delimiter
-    read -ra ADDR <<< "$xcode_version" #parse version number from response
-    vercomp ${ADDR[${#ADDR[@]}-1]} $1 
-    if [[ $? == 2 ]]; then
-        xcode-select --install > /dev/null
-        xcode_version=$( xcode-select --version )
-        IFS=' ' # space is set as delimiter
-        read -ra ADDR <<< "$xcode_version" #parse version number from response
-        vercomp ${ADDR[${#ADDR[@]}-1]} $1 
-        if [[ $? == 2 ]]; then
-            printf "${RED}Message from version request: %s${NC}\n" "$xcode_version"
-            printf "${RED}Unexpected output from Xcode installation. Please ask an instructor for help. ${NC}"
-            read -p "Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
-            printf "💻 ${BLUE}Installing xcode command line tools...${NC}"
-        fi
+    printf "${CLEAR_LINE}💻  ${BLUE}Installing Xcode... (this may take a while)${NC}"
+    CHECK=$((xcode-\select --install) 2>&1)
+    STR="xcode-select: note: install requested for command line developer tools"
+    while [[ "$CHECK" == "$STR" ]];
+    do
+        #osascript -e 'tell app "System Events" to display dialog "Xcode command-line tools must be installed before continuing. Please install "xcode-select" from the other window. Click continue once the installation finishes." buttons "Continue" default button 1 with title "cs9 Setup Script"' &> /dev/null
+        CHECK=$((xcode-\select --install) 2>&1)
+    done
+    if ! command -v xcode-select > /dev/null; then
+        printf "${RED}Unexpected output from Xcode installation. Please ask an instructor for help. ${NC}"
+        read -p "Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+        printf "💻  ${BLUE}Installing xcode command line tools...${NC}"
     fi
 }
 
 function install_homebrew {
     # Homebrew installation
-    printf "${CLEAR_LINE}${BLUE}Installing Homebrew... (this may take a while)${NC}"
+    printf "${CLEAR_LINE}🍺  ${BLUE}Installing Homebrew... (this may take a while)${NC}"
+    if ! command -v brew > /dev/null; then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" > /dev/null
+    fi
     brew_version=$( brew --version )
     IFS='\n' # new line is set as delimiter
     read -ra ADDR <<< "$brew_version" #parse version line from response
@@ -70,7 +68,7 @@ function install_homebrew {
     LASTELEM=${#ADDR1[@]}-1
     vercomp ${ADDR1[$LASTELEM]} $1 
     if [[ $? == 2 ]]; then
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" > /dev/null
+        brew update &> /dev/null
         brew_version=$( brew --version )
         IFS='\n' # new line is set as delimiter
         read -ra ADDR <<< "$brew_version" #parse version line from response
@@ -86,9 +84,8 @@ function install_homebrew {
     fi
 }
 
-
 function install_brew_package {
-    printf "${CLEAR_LINE}🔨 ${BLUE}Installing $1...${NC}"
+    printf "${CLEAR_LINE}🔨  ${BLUE}Installing $1...${NC}"
     if ! command -v $1 > /dev/null; then
         if [[ -n $3 ]]; then
             brew cask install &> /dev/null
@@ -114,14 +111,14 @@ function install_brew_package {
             printf "${CLEAR_LINE}${YELLOW}Output from version request: %s${NC}\n" "$version"
             printf "${YELLOW}Expected version $2 or higher. Please ask an instructor for help. ${NC}\n"
             read -p "Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
-            printf "🔨 ${BLUE}Installing $1....${NC}"
+            printf "🔨  ${BLUE}Installing $1...${NC}"
         fi
     fi
 }
 
 # file system creation
 function filesys {
-    printf "${CLEAR_LINE}🗂 ${BLUE}Setting up cs9 folder on Desktop...${NC}"
+    printf "${CLEAR_LINE}🗂  ${BLUE}Setting up cs9 folder on Desktop...${NC}"
     DIR=/Users/`whoami`/Desktop/cs9/unit_00
     if [ ! -d "$DIR" ]; then
         mkdir -p $DIR
@@ -188,27 +185,27 @@ printf "|   Note: the setup may ask for your password. As a security measure, yo
 printf "|   won't see any characters when you type it in.${NC}${NORMAL}\n"
 read -p "Ready to begin? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
 
-printf "🔍 ${BLUE}Checking system requirements..."
+printf "🔍  ${BLUE}Checking system requirements..."
 set_ownership
 macos_version_check 10.12
 printf "${CLEAR_LINE}👍  ${GREEN}System requirements passed!${NC}\n"
 
-printf "💻 ${BLUE}Installing Xcode command line tools...${NC}"
+printf "💻  ${BLUE}Installing Xcode command line tools...${NC}"
 install_xcode 2354
 printf "${CLEAR_LINE}👍  ${GREEN}Xcode command line tools installed!${NC}\n"
 
-printf "🍺 ${BLUE}Installing Homebrew...${NC}"
+printf "🍺  ${BLUE}Installing Homebrew...${NC}"
 install_homebrew 2.4.8
 printf "${CLEAR_LINE}👍  ${GREEN}Homebrew installed!${NC}\n"
 
-printf "🔨 ${BLUE}Installing brew packages...${NC}"
+printf "🔨  ${BLUE}Installing brew packages...${NC}"
 install_brew_package python3 3.7.7
 install_brew_package direnv 2.20.2
 install_brew_package git 2.27
 install_brew_package atom 0 cask
 printf "${CLEAR_LINE}👍  ${GREEN}Brew packages installed!${NC}\n"
 
-printf "🗂 ${BLUE}Setting up cs9 folder on Desktop...${NC}"
+printf "🗂  ${BLUE}Setting up cs9 folder on Desktop...${NC}"
 filesys
 setup_venv
 printf "${CLEAR_LINE}👍  ${GREEN}cs9 folder created!${NC}\n"
