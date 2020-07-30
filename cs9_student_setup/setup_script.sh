@@ -133,7 +133,8 @@ function setup_venv {
         printf 'eval "$(direnv hook bash)"' > $FILE
     else
         if ! grep -q 'eval "$(direnv hook bash)"' "$FILE"; then
-            printf '\neval "$(direnv hook bash)"' >> $FILE
+            cp $FILE ${FILE}_pre_cs9
+            printf '\n# Added for ISF cs9 setup.\n# Original bash profile can be found in .bash_profile_pre_cs9\neval "$(direnv hook bash)"' >> $FILE
         fi
     fi
     source ~/.bash_profile
