@@ -206,13 +206,13 @@ fi
 
 printf "🔨  ${BLUE}Installing brew packages...${NC}"
 STATUS=0
-if ! install_brew_package python3 3.7.8 ; then
+if ! install_brew_package python3 3.8 ; then
     STATUS=1
 fi
-if ! install_brew_package direnv 2.21.3 ; then
+if ! install_brew_package direnv 2.21 ; then
     STATUS=1
 fi
-if ! install_brew_package git 2.28.0 ; then
+if ! install_brew_package git 2.28 ; then
     STATUS=1
 fi
 if ! install_brew_package atom 0 cask ; then
