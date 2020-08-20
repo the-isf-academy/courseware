@@ -128,16 +128,35 @@ function setup_venv {
     cd $DIR
     python3 -m venv env
     printf 'PATH_add env/bin' > .envrc
-    FILE=/Users/`whoami`/.bash_profile
-    if [ ! -e $FILE ]; then
-        printf 'eval "$(direnv hook bash)"' > $FILE
-    else
-        if ! grep -q 'eval "$(direnv hook bash)"' "$FILE"; then
-            cp $FILE ${FILE}_pre_cs9
-            printf '\n# Added for ISF cs9 setup.\n# Original bash profile can be found in .bash_profile_pre_cs9\neval "$(direnv hook bash)"' >> $FILE
+    if [[ $SHELL == *"bash" ]];
+    then
+        printf "Using bash\n"
+        FILE=/Users/`whoami`/.bash_profile
+        if [ ! -e $FILE ]; then
+            printf 'eval "$(direnv hook bash)"' > $FILE
+        else
+            if ! grep -q 'eval "$(direnv hook bash)"' "$FILE"; then
+                cp $FILE ${FILE}_pre_cs9
+                printf '\n# Added for ISF cs9 setup.\n# Original bash profile can be found in .bash_profile_pre_cs9\neval "$(direnv hook bash)"' >> $FILE
+            fi
         fi
+        source ~/.bash_profile
+    elif [[ $SHELL == *"zsh" ]];
+    then
+        printf "using zsh\n"
+        FILE=/Users/`whoami`/.zshrc
+        if [ ! -e $FILE ]; then
+            printf 'eval "$(direnv hook zsh)"' > $FILE
+        else
+            if ! grep -q 'eval "$(direnv hook zsh)"' "$FILE"; then
+                cp $FILE ${FILE}_pre_cs9
+                printf '\n# Added for ISF cs9 setup.\n# Original zsh profile can be found in .zshrc_pre_cs9\neval "$(direnv hook zsh)"' >> $FILE
+            fi
+        fi
+        source ~/.zshrc
+    else
+        printf "Sorry, $SHELL is not supported. Please switch to bash or zsh and try again."
     fi
-    source ~/.bash_profile
     direnv allow .
 }
 
