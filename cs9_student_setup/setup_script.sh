@@ -130,7 +130,6 @@ function setup_venv {
     printf 'PATH_add env/bin' > .envrc
     if [[ $SHELL == *"bash" ]];
     then
-        printf "Using bash\n"
         FILE=/Users/`whoami`/.bash_profile
         if [ ! -e $FILE ]; then
             printf 'eval "$(direnv hook bash)"' > $FILE
@@ -143,7 +142,6 @@ function setup_venv {
         source ~/.bash_profile
     elif [[ $SHELL == *"zsh" ]];
     then
-        printf "using zsh\n"
         FILE=/Users/`whoami`/.zshrc
         if [ ! -e $FILE ]; then
             printf 'eval "$(direnv hook zsh)"' > $FILE
@@ -153,7 +151,6 @@ function setup_venv {
                 printf '\n# Added for ISF cs9 setup.\n# Original zsh profile can be found in .zshrc_pre_cs9\neval "$(direnv hook zsh)"' >> $FILE
             fi
         fi
-        source ~/.zshrc
     else
         printf "Sorry, $SHELL is not supported. Please switch to bash or zsh and try again."
     fi
