@@ -1,6 +1,22 @@
 # turtlegifmaker
 Provides the module and shell scripts needed to turn your python turtle drawing into a gif that animates the drawing process.
 
+# Instructions
+In terminal, run:
+```
+brew install magick
+brew install ghostscript 
+```
+
+Import this module into your animation repo. Replace `your_drawing_function` with your desired animation function. 
+
+Then, 
+```
+python gifcode.py
+magick screenshot*.eps student.gif
+rm screenshot*.eps
+```
+
 
 # Credits
 Written by [Jenny Han](https://github.com/jennylihan)
