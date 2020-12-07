@@ -1,10 +1,3 @@
-#in terminal, run:
-    #brew install magick
-    #brew install ghostscript
-    #python gifcode.py
-    #magick screenshot*.eps student.gif
-    #rm screenshot*.eps
-
 from turtle import *
 import tkinter as _
 _.ROUND=_.BUTT
