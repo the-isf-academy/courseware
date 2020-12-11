@@ -19,7 +19,7 @@ magick screenshot*.eps student.gif
 rm screenshot*.eps
 ```
 
-## Command-line interface
+## Batch processing Command-line interface
 
 ```
 Usage: inv[oke] [--core-opts] make-gifs [--options] [other tasks here ...]
