@@ -1,8 +1,8 @@
 # turtlegifmaker
 Provides the module and shell scripts needed to turn your python turtle drawing into a gif that animates the drawing process.
 
-# Instructions
-1. Import `gifmaker.py` into your animation repo. Replace `your_drawing_function` with your desired animation function. 
+# Instructions for creating a gif from a single repo! 
+1. You will need to install the Python Image Library (`pip install Pillow`). Import `gifmaker.py` into your animation repo. Replace `your_drawing_function` with your desired animation function. In main, specify the gif name and path name.
 
 2. In terminal, run:   
 ```
