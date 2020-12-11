@@ -50,6 +50,6 @@ are used.
 
 
 # Credits
-Written by [Jenny Han](https://github.com/jennylihan)
+Written by [Jenny Han](https://github.com/jennylihan) and [Chris Proctor](https://github.com/cproctor/)
 
 Code adapted from https://stackoverflow.com/questions/41319971/is-there-a-way-to-save-turtles-drawing-as-an-animated-gif/41353016#41353016
