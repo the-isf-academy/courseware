@@ -19,6 +19,11 @@ magick screenshot*.eps student.gif
 rm screenshot*.eps
 ```
 
+## Command-line interface
+
+You will need [invoke](http://www.pyinvoke.org/) installed (`pip install invoke`). Then you can run `inv --list` to see 
+available tasks and `inv make-gifs`
+
 
 # Credits
 Written by [Jenny Han](https://github.com/jennylihan)

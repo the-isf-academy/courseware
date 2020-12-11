@@ -1,7 +1,5 @@
 from turtle import *
 import tkinter as _
-from animation import main # to be changed to a dynamic import statement
-import settings
 from PIL import ImageGrab, Image
 import os
 
@@ -38,15 +36,23 @@ def record_screen():
     if running:
         ontimer(record_screen, int(1000 / FRAMES_PER_SECOND))
 
-def makegif(your_drawing_function, gif_name):
-    "Takes the name of the animation function and a name for the gif file. Returns a gif of the animation in current directory."
+def makegif(your_drawing_function, gif_name=None, gif_path=None):
+    """Takes the name of the animation function and a name for the gif file. 
+    Returns a gif of the animation in current directory.
+    If gif_path is given, saves the gif there instead"""
     speed(0)
     hideturtle()
     record_screen()  # start the recording
     draw(your_drawing_function) # start drawing
-    path_name = os.getcwd() + '/' + gif_name + '.gif'
-    print(path_name)
+    path_name = gif_path or os.getcwd() + '/' + gif_name + '.gif'
     image_list[0].save(path_name, format='GIF', save_all=True, append_images=image_list[1:], optimize=False, duration=40, loop=0)
 
+#
+# For each student:
+# Import their draw function from their module
+# 
+
+
 if __name__ == '__main__':
+    from animation import main # to be changed to a dynamic import statement
     makegif(main, 'test')
