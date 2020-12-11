@@ -19,7 +19,13 @@ FUNCTION_NAMES = [
     'draw'
 ]
 
-@task 
+helptext = {
+    "rosterfile": "CSV file containing columns: output_name, package, main_module, main_function",
+    "outdir": "Directory where results should be saved",
+    "dryrun": "Import functions but do not run them or save the results",
+}
+
+@task(help=helptext)
 def make_gifs(ctx, rosterfile, outdir='export', dryrun=False):
     """Makes all gifs for a roster of students. 
     The roster should have columns: output_name, package, main_module, main_function.
