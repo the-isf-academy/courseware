@@ -16,11 +16,23 @@ function aptupdate() {
 }
 
 function installpipandpython() {
-	#install pip
+	#install pip and python
 	sudo apt-get install python-pip
 	pip --version
 	alias python=python3
 	python --version
+}
+
+function installjava() {
+	#install java
+	sudo apt install openjdk-11-jdk
+	java --version
+}
+
+function installgit() {
+	#install java
+	sudo apt-get install ogit
+	git --version
 }
 
 function changeubuntupath() {
@@ -76,14 +88,23 @@ read -p "(Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] 
 printf '\n-------------------------------\n'
 
 printf "${BLUE}--- Updating...${NC}\n"
-#aptupdate
+aptupdate
 
 printf "${BLUE}--- Installing pip and Python...${NC}\n"
-#installpipandpython
+installpipandpython
+
+printf "${BLUE}--- Installing Java...${NC}\n"
+installjava
+
 
 printf "${BLUE}--- Updating bash profile...${NC}\n"
-#changeubuntupath
-#customlscommand
+changeubuntupath
+customlscommand
+
+
+printf "${GREEN}--- SET UP COMPLETE ---${NC}\n"
+
+
 
 
 
