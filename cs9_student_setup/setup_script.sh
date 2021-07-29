@@ -7,6 +7,7 @@ YELLOW='\033[1;33m'
 PURPLE='\033[1;35m'
 NC='\033[0m'
 CLEAR_LINE='\r\033[K'
+UP='\033[1A'
 BOLD='\e[1m'
 NORMAL='\e[21m'
 
@@ -41,20 +42,25 @@ function macos_version_check {
 }
 
 function install_xcode  {
-    printf "${CLEAR_LINE}💻  ${BLUE}Installing Xcode... (this may take a while)${NC}"
-    CHECK=$((xcode-\select --install) 2>&1)
-    STR="xcode-select: note: install requested for command line developer tools"
-    while [[ "$CHECK" == "$STR" ]];
-    do
-        sleep 5
+    printf "${CLEAR_LINE}💻  ${BLUE}Installing Xcode... (this may take a while)${NC}\n"
+    printf "\n"
+    printf "    ${BLUE}Note: This installation will begin in another window.\n"
+    printf "    Please click \"Install\" and accept the license agreement.${NC}"
+    #if ! command -v xcode-select > /dev/null; then
         CHECK=$((xcode-\select --install) 2>&1)
-    done
-    if ! command -v xcode-select > /dev/null; then
-        printf "${CLEAR_LINE}┌────── ${RED}Unexpected output from Xcode installation. Please ask an instructor for help. ${NC}"
-        read -p "│       Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
-        printf "💻  ${BLUE}Installing xcode command line tools...${NC}"
-        return 1
-    fi
+        STR="xcode-select: note: install requested for command line developer tools"
+        while [[ "$CHECK" == "$STR" ]];
+        do
+            sleep 5
+            CHECK=$((xcode-\select --install) 2>&1)
+        done
+        if ! command -v xcode-select > /dev/null; then
+            printf "${CLEAR_LINE}${UP}${CLEAR_LINE}${UP}${CLEAR_LINE}${UP}${CLEAR_LINE}┌────── ${RED}Unexpected output from Xcode installation. Please ask an instructor for help. ${NC}"
+            read -p "│       Continue? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+            printf "💻  ${BLUE}Installing xcode command line tools...${NC}"
+            return 1
+        fi
+    #fi
     return 0
 }
 
@@ -62,7 +68,7 @@ function install_homebrew {
     # Homebrew installation
     printf "${CLEAR_LINE}🍺  ${BLUE}Installing Homebrew... (this may take a while)${NC}"
     if ! command -v brew > /dev/null; then
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" &> /dev/null
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" &> /dev/null
     fi
     version=$( brew --version | sed -nEe 's/^[^0-9]*(([0-9]+\.)*[0-9]+).*/\1/p' | head -n 1 )
     vercomp $version $1 
@@ -85,7 +91,7 @@ function install_brew_package {
     printf "${CLEAR_LINE}🔨  ${BLUE}Installing $1...${NC}"
     if ! command -v $1 > /dev/null; then
         if [[ -n $3 ]]; then
-            brew cask install &> /dev/null
+            brew install --cask $1 &> /dev/null
         else
             brew install $1 &> /dev/null
         fi
@@ -94,7 +100,7 @@ function install_brew_package {
     vercomp $version $2 
     if [[ $? == 2 ]]; then
         if [[ -n $3 ]]; then
-            brew cask upgrade $1 &> /dev/null
+            brew upgrade --cask $1 &> /dev/null
         else
             brew upgrade $1 &> /dev/null
         fi
@@ -208,7 +214,7 @@ fi
 
 printf "💻  ${BLUE}Installing Xcode command line tools...${NC}"
 if install_xcode 2354 ; then
-    printf "${CLEAR_LINE}👍  ${GREEN}Xcode command line tools installed!${NC}\n"
+    printf "${CLEAR_LINE}${UP}${CLEAR_LINE}${UP}${CLEAR_LINE}${UP}${CLEAR_LINE}👍  ${GREEN}Xcode command line tools installed!${NC}\n"
 else
     printf "${CLEAR_LINE}✋  ${YELLOW}Xcode command line tools may not have installed correctly!${NC}\n"
 fi
