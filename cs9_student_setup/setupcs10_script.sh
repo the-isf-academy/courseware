@@ -30,7 +30,6 @@ function setup_venv {
     
     if [[ $SHELL == *"bash" ]];
     then
-        printf "bash\n"
         FILE=/Users/`whoami`/.bashrc
         if [ ! -e $FILE ]; then
             printf 'eval "$(direnv hook bash)"' > $FILE
@@ -43,7 +42,6 @@ function setup_venv {
         source ~/.bashrc
     elif [[ $SHELL == *"zsh" ]];
     then
-        printf "zsh\n"
         FILE=/Users/`whoami`/.zshrc
         if [ ! -e $FILE ]; then
             printf 'eval "$(direnv hook zsh)"' > $FILE
