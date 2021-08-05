@@ -17,12 +17,17 @@ function aptupdate() {
 
 function installpipandpython() {
 	#install pip and python
-	sudo apt-get install python-pip
-	pip --version
-	alias python=python3
-	python --version
-    sudo apt install python3.8-venv
-    sudo apt install direnv
+	# sudo apt-get install python-pip
+	# pip --version
+	# alias python=python3
+	# python --version
+    # sudo apt install python3.8-venv
+    # sudo apt install direnv
+    # sudo apt-get install -y python3-wxgtk4.0
+    # sudo apt-get install python3-tk
+
+    #setup for GUI
+    printf "export DISPLAY=localhost:0.0 \n" >> ~/.bashrc
 }
 
 function installjava() {
@@ -40,7 +45,7 @@ function installgit() {
 function changeubuntupath() {
 	DEFAULT_PATH="cd /mnt/c/Users/$1/" 
 	printf "\n#changes default Ubunutu path\n$DEFAULT_PATH \n" >> ~/.bashrc 
-    printf "alias cdh="$DEFAULT_PATH" \n\n" >> ~/.bashrc 
+    printf "alias cdh='$DEFAULT_PATH' \n\n" >> ~/.bashrc 
     
 }
 
@@ -48,11 +53,11 @@ function customlscommand() {
 	#changes ls command and formatting
 	
 	TEXT=(
-		"#Custom ls command and formatting"
+		"#Custom ls command and formatting \n"
 		"LS_COLORS=\$LS_COLORS:'tw=1;44:ow=1;44:di=01;35:ln=90:fi=35:ex=33'"
 		"export LS_COLORS" 
 		"CUSTOMLS=\"command ls --human-readable --group-directories-first --color=auto -I NTUSER.DAT\* -I ntuser.dat\*\"" 
-		"alias ls=\$CUSTOMLS"
+		"alias ls='\$CUSTOMLS'"
 	)
 	printf '%s\n' "${TEXT[@]}" >> ~/.bashrc 
 	source ~/.bashrc
@@ -146,7 +151,7 @@ fi
 
 
 printf "${BLUE}--- Updating...${NC}\n"
-aptupdate
+#aptupdate
 
 printf "${BLUE}--- Installing pip and Python...${NC}\n"
 installpipandpython
@@ -161,8 +166,8 @@ customlscommand
 
 
 printf "${BLUE}Setting up cs9 folder on Desktop...${NC}\n" 
-filesys "$USERNAME_DIR"
-setup_venv "$USERNAME_DIR"
+# filesys "$USERNAME_DIR"
+# setup_venv "$USERNAME_DIR"
 printf "${CLEAR_LINE}👍  ${GREEN}cs9 folder created!${NC}\n"
 
 printf "${PURPLE}Your computer is configured! Please restart Terminal. ${NC}\n"
