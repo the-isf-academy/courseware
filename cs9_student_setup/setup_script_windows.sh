@@ -21,6 +21,8 @@ function installpipandpython() {
 	pip --version
 	alias python=python3
 	python --version
+    sudo apt install python3.8-venv
+    sudo apt install direnv
 }
 
 function installjava() {
@@ -36,16 +38,10 @@ function installgit() {
 }
 
 function changeubuntupath() {
-	# changes default path of Ubunutu 
-	printf "What is your Windows Username? (This is case sensitive):  \n"
-	read WINDOWSUSERNAME
-
-	if [[ $WINDOWSUSERNAME = *[[:space:]]* ]]; then
-		WINDOWSUSERNAME_NOSPACE=`echo "$WINDOWSUSERNAME" | sed 's/\\ /\\\ /g'` 
-	fi	
-
-	DEFAULT_PATH="cd /mnt/c/Users/$WINDOWSUSERNAME_NOSPACE/" 
-	printf "\n#changes default Ubunutu path\n$DEFAULT_PATH \n\n" >> ~/.bashrc 
+	DEFAULT_PATH="cd /mnt/c/Users/$1/" 
+	printf "\n#changes default Ubunutu path\n$DEFAULT_PATH \n" >> ~/.bashrc 
+    printf "alias cdh="$DEFAULT_PATH" \n\n" >> ~/.bashrc 
+    
 }
 
 function customlscommand() {
@@ -60,29 +56,28 @@ function customlscommand() {
 	)
 	printf '%s\n' "${TEXT[@]}" >> ~/.bashrc 
 	source ~/.bashrc
-
+}
 
 
 # file system creation
-function filesys {
-    printf "${CLEAR_LINE}🗂  ${BLUE}Setting up cs9 folder on Desktop...${NC}"
-    DIR=/Users/`whoami`/Desktop/cs9/unit_00
-    if [ ! -d "$DIR" ]; then
-        mkdir -p $DIR
-
+function filesys() {  
+	DIR="/mnt/c/Users/$1/Desktop" 
+    cd "$DIR"
+    if [ ! -d "cs9" ]; then
+        mkdir -p cs9/unit_00
     fi
 }
 
-function setup_venv {
+function setup_venv() {
     # Setting up virtual environment
-    printf "${CLEAR_LINE}🗂  ${BLUE}Creating virtual environment...${NC}"
-    DIR=/Users/`whoami`/Desktop/cs9
-    cd $DIR
+    printf "${CLEAR_LINE}  ${BLUE}Creating virtual environment...${NC}\n"
+    DIR="/mnt/c/Users/$1/Desktop/cs9" 
+    cd "$DIR"
     python3 -m venv env
     printf 'PATH_add env/bin' > .envrc
     if [[ $SHELL == *"bash" ]];
     then
-        FILE=/Users/`whoami`/.bash_profile
+        FILE=~/.bashrc
         if [ ! -e $FILE ]; then
             printf 'eval "$(direnv hook bash)"' > $FILE
         else
@@ -91,7 +86,7 @@ function setup_venv {
                 printf '\n# Added for ISF cs9 setup.\n# Original bash profile can be found in .bash_profile_pre_cs9\neval "$(direnv hook bash)"' >> $FILE
             fi
         fi
-        source ~/.bash_profile
+        source ~/.bashrc
     elif [[ $SHELL == *"zsh" ]];
     then
         FILE=/Users/`whoami`/.zshrc
@@ -109,6 +104,7 @@ function setup_venv {
         printf "Sorry, $SHELL is not supported. Please switch to bash or zsh and try again."
     fi
     direnv allow .
+
 }
 
 
@@ -123,6 +119,7 @@ INTRO_PASSWORD_TEXT=(
 	" The setup may ask for your password."
 	" As a security measure, you won't see any characters when you type it in."
 )
+
 printf "${BLUE}--- Welcome to the CS9 setup script! ---\n"
 
 printf '%s\n' "${INTRO_TEXT[@]}"
@@ -136,29 +133,36 @@ printf "${BLUE}-- Ready to begin? ${NC}\n"
 read -p "(Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
 printf '\n-------------------------------\n'
 
+printf "${CLEAR_LINE}  ${BLUE}Setting up cs9 folder on Desktop...${NC}\n"
+printf "What is your Windows Username? (This is case sensitive and may include spaces.):  \n"
+read WINDOWSUSERNAME
+
+if [[ $WINDOWSUSERNAME = *[[:space:]]* ]]; then
+    WINDOWSUSERNAME_NOSPACE=`echo "$WINDOWSUSERNAME" | sed 's/\\ /\\\ /g'` 
+    USERNAME_DIR=`echo "$WINDOWSUSERNAME" | sed 's/\\ /\ /g'` 
+
+fi	
+
+
+
 printf "${BLUE}--- Updating...${NC}\n"
 aptupdate
 
 printf "${BLUE}--- Installing pip and Python...${NC}\n"
 installpipandpython
 
-printf "${BLUE}--- Installing Java...${NC}\n"
-installjava
+# printf "${BLUE}--- Installing Java...${NC}\n"
+# #installjava
 
 
 printf "${BLUE}--- Updating bash profile...${NC}\n"
-changeubuntupath
+changeubuntupath "$WINDOWSUSERNAME_NOSPACE"
 customlscommand
 
 
-printf "${GREEN}--- SET UP COMPLETE ---${NC}\n"
-
-
-
-
-printf "🗂  ${BLUE}Setting up cs9 folder on Desktop...${NC}"
-filesys
-setup_venv
+printf "${BLUE}Setting up cs9 folder on Desktop...${NC}\n" 
+filesys "$USERNAME_DIR"
+setup_venv "$USERNAME_DIR"
 printf "${CLEAR_LINE}👍  ${GREEN}cs9 folder created!${NC}\n"
 
 printf "${PURPLE}Your computer is configured! Please restart Terminal. ${NC}\n"
