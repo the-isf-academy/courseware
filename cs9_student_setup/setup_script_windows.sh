@@ -27,7 +27,15 @@ function installpipandpython() {
     # sudo apt-get install python3-tk
 
     #setup for GUI
+    printf "\n#GUI setup \n" >> ~/.bashrc 
     printf "export DISPLAY=localhost:0.0 \n" >> ~/.bashrc
+
+    #setup for Atom
+    DEFAULT_PATH="cd /mnt/c/Users/$1/Local/atom/atom.exe" 
+
+    printf "\n#Atom setup \n" >> ~/.bashrc 
+    printf "alias cdh='$DEFAULT_PATH' \n\n" >> ~/.bashrc 
+
 }
 
 function installjava() {
@@ -154,7 +162,7 @@ printf "${BLUE}--- Updating...${NC}\n"
 #aptupdate
 
 printf "${BLUE}--- Installing pip and Python...${NC}\n"
-installpipandpython
+installpipandpython "$WINDOWSUSERNAME_NOSPACE"
 
 # printf "${BLUE}--- Installing Java...${NC}\n"
 # #installjava
