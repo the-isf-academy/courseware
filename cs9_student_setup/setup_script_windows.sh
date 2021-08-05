@@ -49,7 +49,56 @@ function customlscommand() {
 	printf '%s\n' "${TEXT[@]}" >> ~/.bashrc 
 	source ~/.bashrc
 
+
+
+# file system creation
+function filesys {
+    printf "${CLEAR_LINE}🗂  ${BLUE}Setting up cs9 folder on Desktop...${NC}"
+    DIR=/Users/`whoami`/Desktop/cs9/unit_00
+    if [ ! -d "$DIR" ]; then
+        mkdir -p $DIR
+
+    fi
 }
+
+function setup_venv {
+    # Setting up virtual environment
+    printf "${CLEAR_LINE}🗂  ${BLUE}Creating virtual environment...${NC}"
+    DIR=/Users/`whoami`/Desktop/cs9
+    cd $DIR
+    python3 -m venv env
+    printf 'PATH_add env/bin' > .envrc
+    if [[ $SHELL == *"bash" ]];
+    then
+        FILE=/Users/`whoami`/.bash_profile
+        if [ ! -e $FILE ]; then
+            printf 'eval "$(direnv hook bash)"' > $FILE
+        else
+            if ! grep -q 'eval "$(direnv hook bash)"' "$FILE"; then
+                cp $FILE ${FILE}_pre_cs9
+                printf '\n# Added for ISF cs9 setup.\n# Original bash profile can be found in .bash_profile_pre_cs9\neval "$(direnv hook bash)"' >> $FILE
+            fi
+        fi
+        source ~/.bash_profile
+    elif [[ $SHELL == *"zsh" ]];
+    then
+        FILE=/Users/`whoami`/.zshrc
+        if [ ! -e $FILE ]; then
+            printf 'eval "$(direnv hook zsh)"' > $FILE
+        else
+            if ! grep -q 'eval "$(direnv hook zsh)"' "$FILE"; then
+                cp $FILE ${FILE}_pre_cs9
+                printf '\n# Added for ISF cs9 setup.\n# Original zsh profile can be found in .zshrc_pre_cs9\neval "$(direnv hook zsh)"' >> $FILE
+            fi
+        fi
+		source ~/.zshrc
+
+    else
+        printf "Sorry, $SHELL is not supported. Please switch to bash or zsh and try again."
+    fi
+    direnv allow .
+}
+
 
 INTRO_TEXT=(
 	"Running this script will download some new software and get your computer setup up for the class."
@@ -86,4 +135,10 @@ printf "${BLUE}--- Updating bash profile...${NC}\n"
 #customlscommand
 
 
+printf "🗂  ${BLUE}Setting up cs9 folder on Desktop...${NC}"
+filesys
+setup_venv
+printf "${CLEAR_LINE}👍  ${GREEN}cs9 folder created!${NC}\n"
 
+printf "${PURPLE}Your computer is configured! Please restart Terminal. ${NC}\n"
+exit 0
