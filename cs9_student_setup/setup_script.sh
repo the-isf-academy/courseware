@@ -66,9 +66,9 @@ function install_xcode  {
 
 function install_homebrew {
     # Homebrew installation
-    printf "${CLEAR_LINE}🍺  ${BLUE}Installing Homebrew... (this may take a while)${NC}"
+    printf "${CLEAR_LINE}🍺  ${BLUE}Installing Homebrew... (this may take a while)${NC}\n"
     if ! command -v brew > /dev/null; then
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" &> /dev/null
+        yes "" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" &> /dev/null
     fi
     version=$( brew --version | sed -nEe 's/^[^0-9]*(([0-9]+\.)*[0-9]+).*/\1/p' | head -n 1 )
     vercomp $version $1 
