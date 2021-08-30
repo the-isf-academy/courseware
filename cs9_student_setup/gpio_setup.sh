@@ -11,7 +11,7 @@ setup_gpiozero
 
 printf "\n"
 printf "Your Pi is configured!\n"
-printf "Rebooting Pi..."
+printf "Rebooting Pi...\n"
 sudo reboot
 ~                                                                             
 ~                                                                             
