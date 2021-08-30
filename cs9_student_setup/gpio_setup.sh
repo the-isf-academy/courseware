@@ -4,12 +4,15 @@ function setup_gpiozero {
 
         sudo pip3 install gpiozero
         sudo apt-get install rpi.gpio
+        sudo adduser $(whoami) gpio
 }
 
 setup_gpiozero
 
-prinf "\n"
+printf "\n"
 printf "Your Pi is configured!\n"
+printf "Rebooting Pi..."
+sudo reboot
 ~                                                                             
 ~                                                                             
 ~                                                                             
