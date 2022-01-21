@@ -1,5 +1,5 @@
 #!/bin/bash
-export PATH=$PATH:~/Library/Python/3.8/bin >> test.txt
+export PATH=$PATH:~/Library/Python/3.8/bin >> ~/.zshrc 
 source ~/.zshrc
 
 pip3 install notebook
