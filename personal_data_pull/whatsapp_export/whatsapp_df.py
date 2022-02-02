@@ -13,7 +13,7 @@ def get_whatsapp_df(chat_file):
            parsed_line = parse_line(line)
            if parsed_line:
                parsed_lines.append(parsed_line)
-        df = pd.concat([pd.DataFrame({'date':[date], 'contact':[contact], 'message':[message]}) for date, contact, message in parsed_lines])
+        df = pd.concat([pd.DataFrame({'date':[date], 'sender':[sender], 'message':[message]}) for date, sender, message in parsed_lines])
     df = df.sort_values('date')
     return df
 
