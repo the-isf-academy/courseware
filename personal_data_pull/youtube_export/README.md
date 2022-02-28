@@ -6,7 +6,7 @@ This script converts the Youtube watch-history into a csv file. It also uses the
 
 First, install the packages these scripts require:
 
-`pip3 install requirements.txt`
+`pip3 install  -r requirements.txt`
 
 ## Add personalized Youtube json to repo
 
