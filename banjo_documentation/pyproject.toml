@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "banjo-documentation"
+version = "0.1.0"
+description = ""
+authors = ["emma <eqbrown@isf.edu.hk>"]
+readme = "README.md"
+packages = [{include = "banjo_documentation"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+myst-parser = "^0.18.0"
+sphinx-rtd-theme = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

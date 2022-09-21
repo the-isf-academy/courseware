@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Models &mdash; Banjo 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Views" href="views.html" />
+    <link rel="prev" title="Welcome to the Banjo Documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Banjo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model-querying">Model Querying</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-filtering">Advanced Filtering</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="views.html">Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Example: Person Contact Server</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Banjo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="models">
+<h1>Models<a class="headerlink" href="#models" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Model">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Model</span></span><a class="headerlink" href="#Model" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>First, you must define your Model. Banjo provides four field types:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BooleanField</span></code> (True, False)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IntegerField</span></code> (1, -102)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FloatField</span></code> (0.045, 11.5)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StringField</span></code> (“alligator”, “hazelnut”)</p></li>
+</ul>
+</div></blockquote>
+<p>To create a model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># app/models.py</span>
+<span class="kn">from</span> <span class="nn">banjo.models</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">StringField</span><span class="p">,</span> <span class="n">IntegerField</span><span class="p">,</span> <span class="n">BooleanField</span>
+
+<span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+   <span class="n">name</span> <span class="o">=</span> <span class="n">StringField</span><span class="p">()</span>
+   <span class="n">age</span> <span class="o">=</span> <span class="n">IntegerField</span><span class="p">()</span>
+   <span class="n">student</span> <span class="o">=</span> <span class="n">BooleanField</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><em>To create an instance of the model in the Banjo shell:</em>  <code class="docutils literal notranslate"><span class="pre">banjo</span> <span class="pre">--shell</span></code></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">one_person</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Dragon&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">student</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">one_person</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<hr class="docutils" />
+<p>All Banjo models have two funcitons built it. You can override in them in the class definition.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="objects.to_dict">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.to_dict" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a nicely formatted dictionary of the object</p>
+</dd>
+</dl>
+<p><em>example:</em></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">one_person</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Dragon&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">student</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">one_person</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">one_person</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="go">{&#39;name&#39;: &#39;Dragon&#39;,</span>
+<span class="go">&#39;age&#39;: 15,</span>
+<span class="go">&#39;student&#39;: True}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="objects.from_dict">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.from_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Takes a dictionary a nicely formats it to easily create a new object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>an instance of the object</p>
+</dd>
+</dl>
+<p><em>example:</em></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">another_person_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">   &#39;name&#39;:&#39;Snail&#39;,</span>
+<span class="go">   &#39;age&#39;: 88,</span>
+<span class="go">   &#39;student&#39;: False}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">another_person</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">another_person_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">another_person</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<hr class="docutils" />
+<section id="model-querying">
+<h2>Model Querying<a class="headerlink" href="#model-querying" title="Permalink to this heading"></a></h2>
+<p>When querying the Banjo database, it return a QuerySet. A QuerySet is a list of objects.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="objects.all">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.all" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a QuerySet of all the instances of the object</p>
+</dd>
+</dl>
+<p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><em>To iterate, or loop, through a QuerySet:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prints each name of all Persons one at a time</span>
+<span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+   <span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="objects.get">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.get" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a single of object</p>
+</dd>
+</dl>
+<p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="objects.count">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.count" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>an interger representing the number in the QuerySet</p>
+</dd>
+</dl>
+<p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<hr class="docutils" />
+<dl class="py function">
+<dt class="sig sig-object py" id="objects.filter">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.filter" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a QuerySet matching the filter parameters</p>
+</dd>
+</dl>
+<p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Deletes the instance of Person with an id of 1</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="objects.order_by">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">order_by</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.order_by" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a QuerySet ordered in ascending order. For strings ascending order is alphabetical, for
+integers ascending order is numerical.</p>
+</dd>
+</dl>
+<p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Returns a QuerySet of Persons in alphabetical order by name</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+
+<span class="c1"># Returns a QuerySet of Persons in reverse alphabetical order by name</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-name&#39;</span><span class="p">)</span>
+
+<span class="c1"># Returns a QuerySet of Persons in random order by name</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="objects.first">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">first</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.first" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the first object in the QuerySet</p>
+</dd>
+</dl>
+<p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Returns the first Person by age</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+<span class="c1"># Returns the first Person with the lowest age</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">orderby</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="objects.exists">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">exists</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.exists" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a Boolean value if the QuerySet returns any results</p>
+</dd>
+</dl>
+<p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Returns a Boolean value representing if any Persons exist</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+<span class="c1"># Returns a Boolean value representing if any Persons with the age of 10 exist</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="objects.delete">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.delete" title="Permalink to this definition"></a></dt>
+<dd><p>Deletes all the objects in a QuerySet</p>
+<p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Deletes the instance of Person with an id of 1</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="objects.exclude">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">exclude</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#objects.exclude" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a QuerySet containing all objects <em>except</em> those that match the parameters</p>
+</dd>
+</dl>
+<p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Returns a QuerySet of Persons without an age of 12</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="advanced-filtering">
+<h2>Advanced Filtering<a class="headerlink" href="#advanced-filtering" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">__startswith=</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a QuerySet containing all objects that start with a specific parameter</p>
+</dd>
+</dl>
+<p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Returns a QuerySet of Persons with names that include the letter &#39;a&#39;</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="p">(</span><span class="n">name__startswith</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">__endswith=</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a QuerySet containing all objects that end with a specific parameter</p>
+</dd>
+</dl>
+<p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Returns a QuerySet of Persons with names that include the letter &#39;a&#39;</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="p">(</span><span class="n">name__endswith</span><span class="o">=</span><span class="s1">&#39;n&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">__contains=</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a QuerySet containing all objects that contain a specific parameter</p>
+</dd>
+</dl>
+<p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Returns a QuerySet of Persons with names that start the letter &#39;b&#39;</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="p">(</span><span class="n">name__contains</span><span class="o">=</span><span class="s1">&#39;brown&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<p><strong>Conditional Symbols</strong></p>
+<dl class="py function">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-prename descclassname"><span class="pre">objects.</span></span><span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">__gt=</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id3" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">gt</span></code>: greater than</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gte</span></code>: greater than or equal to</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lt</span></code>: less than</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lte</span></code>: less than or equal to</p>
+<blockquote>
+<div><p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Returns a QuerySet of Persons with an age greater than 15</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">age__gt</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+<span class="c1"># Returns a QuerySet of Persons with an age less than or equal 55</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">age__lt</span><span class="o">=</span><span class="mi">55</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+<p><strong>Chaining Filtering</strong></p>
+<p>Query functions are easily chained together to create a more specific QuerySet.</p>
+<blockquote>
+<div><p><em>example:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Returns a QuerySet of Persons with an age greater than 15 and names that start with &#39;a&#39;</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">age__gt</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__starswith</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+
+<span class="c1"># Returns a count of Persons with an age greater than 15 and names that start with &#39;a&#39;</span>
+<span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">age__gt</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__starswith</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><em>To iterate, or loop, through a chained QuerySet:</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prints each name of Persons where student is True</span>
+<span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">Person</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">student</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+   <span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<hr class="docutils" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to the Banjo Documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="views.html" class="btn btn-neutral float-right" title="Views" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Emma Q. Brown.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
