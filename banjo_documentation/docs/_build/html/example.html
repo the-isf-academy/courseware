@@ -79,6 +79,10 @@
     <span class="n">name</span> <span class="o">=</span> <span class="n">StringField</span><span class="p">()</span>
     <span class="n">age</span> <span class="o">=</span> <span class="n">IntegerField</span><span class="p">()</span>
     <span class="n">student</span> <span class="o">=</span> <span class="n">BooleanField</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">update_age</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">+=</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">views.py</span></code>:</p>

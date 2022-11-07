@@ -14,6 +14,11 @@ This is the full code example for the Person server.
         age = IntegerField()
         student = BooleanField()
 
+        def update_age(self):
+            self.age +=1
+            self.save()
+
+
 
 ``views.py``::
     

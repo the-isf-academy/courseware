@@ -24,6 +24,10 @@ To create a model::
       age = IntegerField()
       student = BooleanField()
 
+      def update_age(self):
+         self.age +=1
+         self.save()
+
 *To create an instance of the model in the Banjo shell:*  ``banjo --shell``
 
    >>> one_person = Person(name='Dragon', age=15, student=True)
