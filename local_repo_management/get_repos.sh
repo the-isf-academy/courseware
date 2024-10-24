@@ -1,10 +1,13 @@
 #!/bin/bash
+# example usage:
+# bash get_repos.sh lab-bank github_usernames.csv
+
 FRONT_URL="https://github.com/the-isf-academy/"
-LAB_PREFIX="$2_"
+LAB_PREFIX="$1_"
 BACK_URL=".git"
 FOLDER="./~/Desktop/"
-mkdir projects
-grep . $1 | while read LINE ; do 
+mkdir -p projects
+grep . $2 | while read LINE ; do 
     #Strip new line from LINE
     # echo "$FRONT_URL$LAB_PREFIX${LINE//[$'\t\r\n ']}$BACK_URL" $FOLDER$LAB_PREFIX${LINE//[$'\t\r\n ']}
     cd projects
