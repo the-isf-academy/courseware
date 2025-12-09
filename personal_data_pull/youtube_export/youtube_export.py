@@ -2,160 +2,265 @@ import pandas as pd
 import json
 import requests
 from apiclient.discovery import build
+from apiclient.errors import HttpError
+
 from simple_term_menu import TerminalMenu
 from tqdm import tqdm
+import sqlite3
+import sys
 
 def parse_json(file_loc):
     with open(file_loc) as json_file:
         json_list = json.load(json_file)
 
-    json_dict = {'video_title':[],'video_id':[],'channel_name':[],'channel_id':[],'watch_date':[],'watch_time':[]}
+    json_dict = {'title':[],'video_id':[],'datetime':[]}
 
     pbar = tqdm(total= len(json_list))
-
     for video in json_list:
-        if 'titleUrl' in video and 'subtitles' in video:
-            for key,val in video.items():
-                if key=='time':
-                    time_split = val.replace('Z','').split('T')
-                    json_dict['watch_date'].append(time_split[0])
-                    json_dict['watch_time'].append(time_split[1][:-4])
+        # print(video)
+         if 'details' not in video and 'Watched' in video['title']:
+            print(video)
+            if 'titleUrl' in video and 'time' in video:
+                for key,val in video.items():
+                    if key=='time':
+                        json_dict['datetime'].append(val)
+                        
+                    elif key == 'titleUrl':
+                        video_id = val.replace('https://www.youtube.com/watch?v=','')
+                        json_dict['video_id'].append(video_id)
+
+                    elif key=='title':
+                        title = val.replace("Watched ","").strip()
+                        json_dict['title'].append(title)
                     
-                elif key == 'title':
-                    json_dict['video_title'].append(val)
-
-                elif key == 'subtitles' and val[0]['url'] != None:
-                    json_dict['channel_name'].append(val[0]['name'])
-
-                    url = val[0]['url']
-                    channel_id = url.replace('https://www.youtube.com/channel/','')
-                    json_dict['channel_id'].append(channel_id)
-
-                elif key == 'titleUrl':
-                    video_id = val.replace('https://www.youtube.com/watch?v=','')
-                    json_dict['video_id'].append(video_id)
-        pbar.update(1)
+                    pbar.update(1)
 
     return json_dict
 
-def yt_api_channel(youtube, yt_df):
-    pbar = tqdm(total= len(yt_df.index))
+    print(f"Channel Exists in db: channel_id {current_channel_id}")
 
-    channel_dict = {}
+    cursor.execute("SELECT * FROM video_db WHERE channelId = ?", (current_channel_id,))
+    row = cursor.fetchone()
+    column_names = [description[0] for description in cursor.description]
+    channel_data_dict = dict(zip(column_names, row))
 
-    json_dict = {
-        'channel_view_total':[],
-        'channel_subscriber_total':[],
-        'channel_video_total' : []
-    }
+    # Safely delete keys if they exist in the dictionary
+    video_stats = ['title', 'video_id', 'channelId', 'viewCount', 'likeCount', 'commentCount', 'topicCategories']
+    for key in video_stats:
+        channel_data_dict.pop(key, None)  # Use pop with default value to avoid KeyError
 
-    for channel_id in yt_df['channel_id']:
-        if channel_id in channel_dict:
-            json_dict['channel_view_total'].append(channel_dict[channel_id]['channel_view_total'])
-            json_dict['channel_subscriber_total'].append(channel_dict[channel_id]['channel_subscriber_total'])
-            json_dict['channel_video_total'].append(channel_dict[channel_id]['channel_video_total'])
-            # print(channel_dict)
+    # Ensure channelId is in the dictionary for the WHERE clause
+    channel_data_dict['channelId'] = current_channel_id
 
-        else:
+    columns = ', '.join([f"{column} = :{column}" for column in channel_data_dict.keys() if column != 'channelId'])
+    sql = f"UPDATE video_db SET {columns} WHERE channelId = :channelId"
 
-            request = youtube.channels().list(part=['statistics'],id=channel_id)
-            response = request.execute()
-            if 'items' not in response:
-                for column in json_dict.keys():
-                    json_dict[column].append(None)
-
-            else:
-                if response['items'][0]['statistics']['hiddenSubscriberCount'] == True:
-                    json_dict['channel_subscriber_total'].append(None)
-                    channel_dict[channel_id] = {'channel_subscriber_total':None}
-                else:
-                    json_dict['channel_subscriber_total'].append(response['items'][0]['statistics']['subscriberCount'])
-                    channel_dict[channel_id] = {'channel_subscriber_total':response['items'][0]['statistics']['subscriberCount']}
-
-                json_dict['channel_view_total'].append(response['items'][0]['statistics']['viewCount'])
-                json_dict['channel_video_total'].append(response['items'][0]['statistics']['videoCount'])
-
-                channel_dict[channel_id]['channel_view_total'] = response['items'][0]['statistics']['viewCount']
-                channel_dict[channel_id]['channel_video_total'] = response['items'][0]['statistics']['videoCount']
-        pbar.update(1)
-
-    pbar.close()
-    return json_dict
-
-def yt_api_video(youtube,df):
-    pbar = tqdm(total= len(yt_df.index))
-
-    video_dict = {}
-
-    stats_columns = {
-        'viewCount': 'video_view_total',
-        'commentCount': 'video_comment_total',
-        'likeCount': 'video_like_total',
-    }
-
-
-    json_dict = {
-        'video_view_total': [],
-        'video_like_total' : [],
-        'video_comment_total' : [],
-        'video_topics': []
-        }
-
+    cursor.execute(sql, channel_data_dict)
+    conn.commit()
     
-    for video_id in df['video_id']:
+def yt_api_channel(conn):
+    cursor = conn.cursor()
 
-        if video_id in video_dict:
-            for column in json_dict.keys():
-                json_dict[column].append(video_dict[video_id][column])
+    channelId_list = cursor.execute("SELECT channelId FROM video_db WHERE channelId IS NULL OR channelId = ''").fetchall()
+    pbar = tqdm(total= len(channelId_list))
 
-        else:
-            video_dict[video_id] = {}
+    print(channelId_list)
+
+    for channel_id in channelId_list:
+        pbar.update(1)
+
+        current_channel_id = channel_id[0]
+
+        cursor.execute("SELECT EXISTS (SELECT 1 FROM video_db WHERE channelId = ? and channelViewCount IS NULL)", (current_channel_id,)) 
+
+        channel_data_exists = cursor.fetchone()[0] 
+
+        # print(channel_data_exists)
+
+        if channel_data_exists != 0:
+            print(f"Processing channelId: {current_channel_id}") 
+
+            part_list = ['snippet','statistics']
+
+            channel_data_dictionary = {
+                'channelId': current_channel_id,
+                'viewCount': None,
+                'subscriberCount': None,
+                'videoCount': None,
+                'hiddenSubscriberCount': None,
+                'videoCount': None,
+                'country': None,
+                }
+            
+            request = youtube.channels().list(part=part_list,id=current_channel_id)
+            response = request.execute()
+            # print(response)
 
             try:
-                request = youtube.videos().list(part=['statistics','topicDetails'],id=video_id)
-                response = request.execute()
-
-                if len(response['items']) == 0:
-                    for column in columns:
-                        json_dict[column].append(None)
-
-                else:
-
-                    for column in stats_columns.keys():
-                        # print(column)
-                        # print(response['items'][0]['statistics'])
-                        if column not in response['items'][0]['statistics']:
-                            json_dict[stats_columns[column]].append(None)
-                            video_dict[video_id][stats_columns[column]] = None
-
-                        else:
-                            json_dict[stats_columns[column]].append(response['items'][0]['statistics'][column])
-                            video_dict[video_id][stats_columns[column]] = response['items'][0]['statistics'][column]
-
+                if 'items' in response:
+                    for yt_part_param,val in response['items'][0].items():
+                        if yt_part_param in part_list:
+                            for key,val in val.items():
+                                    if key in channel_data_dictionary:
+                                        channel_data_dictionary[key] = val
                     
+                    channel_data_dictionary['channelViewCount'] = channel_data_dictionary.pop('viewCount')
+                    channel_data_dictionary['channelVideoCount'] = channel_data_dictionary.pop('videoCount')
 
-                    if 'topicDetails' not in response['items'][0]:
-                        video_topic_parsed = None
-                    else:
-                        video_topic = response['items'][0]['topicDetails']['topicCategories'][0]
-                        video_topic_parsed = video_topic.replace('https://en.wikipedia.org/wiki/','')
+                    # print(channel_data_dictionary)
 
-                    json_dict['video_topics'].append(video_topic_parsed)
-                    video_dict[video_id]['video_topics'] = video_topic_parsed
+                    columns = ', '.join([f"{column} = :{column}" for column in channel_data_dictionary.keys()])
+                    sql = f"UPDATE video_db SET {columns} WHERE channelId = :channelId" 
+
+                    cursor.execute(sql, channel_data_dictionary)
+                    conn.commit()
 
             except:
-                for column in json_dict.keys():
-                    json_dict[column].append(None)
-                    video_dict[video_id][column] = None
+                print(f"ERROR: channel_id {current_channel_id}")
+                print(response)
 
+        else:
+            print(f"Channel Exists in db: channel_id {current_channel_id}")
+
+            cursor.execute("SELECT * FROM video_db WHERE channelId = ?", (current_channel_id,))
+            row = cursor.fetchone()
+            column_names = [description[0] for description in cursor.description]
+            channel_data_dict = dict(zip(column_names, row))
+
+            # Safely delete keys if they exist in the dictionary
+            video_stats = ['title', 'video_id', 'channelId', 'viewCount', 'likeCount', 'commentCount', 'topicCategories']
+            for key in video_stats:
+                channel_data_dict.pop(key, None)  # Use pop with default value to avoid KeyError
+
+            # Ensure channelId is in the dictionary for the WHERE clause
+            channel_data_dict['channelId'] = current_channel_id
+
+            columns = ', '.join([f"{column} = :{column}" for column in channel_data_dict.keys() if column != 'channelId'])
+            sql = f"UPDATE video_db SET {columns} WHERE channelId = :channelId"
+
+            cursor.execute(sql, channel_data_dict)
+            conn.commit()
+
+ 
+
+def yt_api_video(df, db_conn, db_cursor, table_name):
+    pbar = tqdm(total= len(df.index))
+
+    # print(len(df['video_id'].unique())
+
+    # print(len(df['video_id'].unique()))
+
+
+    for index, row in df.iterrows():
         pbar.update(1)
-            
 
+        current_video_id = row['video_id']
+
+        cursor.execute(f"SELECT EXISTS (SELECT 1 FROM {table_name} WHERE video_id = ?)", (current_video_id,))
+
+        video_exists_result = cursor.fetchone()[0] 
+        
+        # the video does not exist in db
+        if video_exists_result == 0:
+
+            part_list = ['snippet','statistics','topicDetails']
+            request = youtube.videos().list(part=['snippet','statistics','topicDetails'],id=current_video_id)
+
+            try:   
+                response = request.execute()
+                
+                video_data_dictionary = {
+                    'title': None,
+                    'video_id': current_video_id,
+                    'channelId': None,
+                    'channelTitle': None,
+                    'viewCount': None,
+                    'likeCount': None,
+                    'commentCount': None,
+                    'topicCategories': None
+                    }
+                
+                for yt_part_param,val in response['items'][0].items():
+                    if yt_part_param in part_list:
+                        for key,val in val.items():
+                            if key == 'topicCategories':
+                                video_topic_parsed = val[0].replace('https://en.wikipedia.org/wiki/','')
+                                video_data_dictionary[key] = video_topic_parsed
+
+                            elif key in video_data_dictionary:
+                                video_data_dictionary[key] = val
+                
+                columns = ', '.join(video_data_dictionary.keys())
+                placeholders = ', '.join(['?'] * len(video_data_dictionary))
+
+                sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+
+                db_cursor.execute(sql, tuple(video_data_dictionary.values()))
+                db_conn.commit()
+
+                print(f"Success [new]: video_id {current_video_id}")
+
+                ### process channel info
+
+                current_channle_id = video_data_dictionary['channelId']
+
+                cursor.execute("SELECT EXISTS (SELECT 1 FROM video_db WHERE channelId = ? and channelViewCount IS NULL)", (current_channle_id,)) 
+
+                channel_data_exists = cursor.fetchone()[0] 
+
+                if channel_data_exists != 0:
+                    get_channel_stats_api()
+
+
+            except:
+                print(f"ERROR: video_id {current_video_id}")
+                print(response)
+
+        else:
+            print(f"Success [existed] : video_id {current_video_id}")
+
+
+               
     pbar.close()
-    return(json_dict)
+  
+
+def db_to_csv(parsed_df, cursor):
+    pbar = tqdm(total= len(parsed_df.index))
+
+    parsed_df = parsed_df[["video_id","datetime"]]
+
+    for index, row in parsed_df.iterrows():
+        pbar.update(1)
+
+        video_id = row['video_id']
+
+        cursor.execute("SELECT * FROM video_db WHERE video_id = ?", (video_id,))
+
+        try:
+            video_data = cursor.fetchone()
+            column_names = [description[0] for description in cursor.description]
+
+            video_data_dict = dict(zip(column_names, video_data))
+
+            video_stats = ['video_id']
+            for key in video_stats:
+                del video_data_dict[key]
+
+            for key, val in video_data_dict.items():
+                # print(key,val)
+                parsed_df.loc[index, key] = val
+        except:
+            print(f"Error: video {video_id} does not exist")
+    
+    return parsed_df
+
+
+        
+
+
 
 def menu():
-    options = ["json to csv", "channel stats", "video stats","quit"]
+    options = ["json to csv", "video stats", "channel stats", "get data csv", "quit"]
     terminal_menu = TerminalMenu(options)
     menu_entry_index = terminal_menu.show()
     option = options[menu_entry_index]
@@ -175,76 +280,48 @@ if __name__ == '__main__':
 
     option = menu()
 
+    # print(sys.argv)
+    student_name = sys.argv[1]
+
     while option != "quit":
         if option == "json to csv":
-            json_dict = parse_json('data/watch-history.json')
+            json_dict = parse_json(f"data/{student_name}-watch-history.json")
             json_to_csv_df = pd.DataFrame.from_dict(json_dict)
-            json_to_csv_df.to_csv(r'export/json-parsed.csv',index=None)
+        
+            json_to_csv_df.to_csv(f"export/{student_name}-json-parsed.csv",index=None)
 
-        elif option == 'channel stats':
-            original_csv_df = pd.read_csv('export/json-parsed.csv')
-
-            unique_channels = original_csv_df['channel_id'].nunique()
-
-            if unique_channels > 10000:
-                print("Due to API quota, your dataset is too large.")
-                rows_dropped = 0
-                pbar = tqdm(total= abs(unique_channels-10000))
-                drop_rows = unique_channels - 10000
-
-                while unique_channels > 10000: 
-                    original_csv_df.drop(original_csv_df.tail(1).index,axis=0, inplace=True)
-                    unique_channels = original_csv_df['channel_id'].nunique()
-                    rows_dropped += 1
-                    pbar.update(1)
-
-                pbar.close()
-                print("-"*10)
-                print("Deleted {} number of rows".format(rows_dropped))
-
-            print("-"*20)
-            print("Fetching Youtube channel stats...")
-
-
-            channel_stats_dict = yt_api_channel(youtube,original_csv_df)
-            columns = ['channel_view_total','channel_subscriber_total','channel_video_total']
-
-            for column in columns:
-                original_csv_df[column] = channel_stats_dict[column]
-
-            original_csv_df.to_csv(r'export/youtube-dataset-channel.csv',index=None)
+        
 
         elif option == 'video stats':
-            yt_df = pd.read_csv('export/youtube-dataset-channel.csv')
-
-            unique_videos = yt_df['video_id'].nunique()
-
-            if unique_videos > 10000:
-                print("Due to API quota, your dataset is too large.")
-                rows_dropped = 0
-                pbar = tqdm(total= abs(unique_videos-10000))
-
-                while unique_videos > 10000: 
-                    yt_df.drop(yt_df.tail(1).index,axis=0, inplace=True)
-                    unique_videos = yt_df['video_id'].nunique()
-                    rows_dropped += 1
-                    pbar.update(1)
-
-                pbar.close()
-                print("-"*10)
-                print("Deleted {} number of rows".format(rows_dropped))
+            json_parsed_df = pd.read_csv(f"export/{student_name}-json-parsed.csv")
 
             print("-"*20)
             print("Fetching Youtube video stats...")
 
-            video_stats = yt_api_video(youtube,yt_df)
-            columns = ['video_view_total','video_like_total','video_comment_total','video_topics']
+            conn = sqlite3.connect("youtube.db")
+            cursor = conn.cursor()
 
-            for column in columns:
-                yt_df[column] = video_stats[column]
+            yt_api_video(json_parsed_df, conn, cursor, "video_db")
 
-            yt_df.head()
-            yt_df.to_csv (r'export/watch-history-full.csv', index = None)
-        
+        elif option == 'channel stats':
+            print("-"*20)
+            print("Fetching Youtube channel stats...")
+
+            conn = sqlite3.connect("youtube.db")
+
+            channel_df = yt_api_channel(conn)
+            
+
+        elif option == 'get data csv':
+            parsed_csv = pd.read_csv(f"export/{student_name}-json-parsed.csv")
+
+            conn = sqlite3.connect("youtube.db")
+            cursor = conn.cursor()
+
+            processed_df = db_to_csv(parsed_csv, cursor)
+            processed_df.to_csv(f"export/{student_name}-youtube.csv",index=None)
+
+           
+
         print("\n")
         option = menu()
