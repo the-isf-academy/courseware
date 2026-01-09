@@ -4,9 +4,7 @@ This script converts the Youtube `watch-history.json` into a csv file. It also u
 
 ## Installation 
 
-First, install the packages these scripts require:
-
-`pip3 install  -r requirements.txt`
+First, ensure you have installed the necessary packages with `poetry install` in the parent direction `personal_data_pull`
 
 ## Add personalized Youtube json to repo
 
@@ -18,6 +16,8 @@ Open each `Takeout` folder and find the `watch-history.json` file. It should be 
 
 Then, move the `watch-history.json` file into the `/data` folder of this repository.
 
+Rename the file following this naming convention `name-watch-history.json`
+
 ## Get API Key
 
 Second, you need to register with Google Cloud Platform and get an API key.  
@@ -28,7 +28,7 @@ Once you have your api key, paste it into the `data/api_key.txt` file.
 
 Run this script using the following command:
 
-`python3 youtube_export.py`
+`python3 youtube_export.py name`
 
 You can find your data in the `exports/` directory.
 
