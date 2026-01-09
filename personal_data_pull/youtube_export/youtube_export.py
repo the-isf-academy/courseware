@@ -232,8 +232,11 @@ def db_to_csv(parsed_df, cursor):
                 del video_data_dict[key]
 
             for key, val in video_data_dict.items():
-                # print(key,val)
-                parsed_df.loc[index, key] = val
+                # If the value is empty (None, empty string, or empty list), set to None
+                if val in [None, '', [], {}]:
+                    parsed_df.loc[index, key] = 'N/A'
+                else:
+                    parsed_df.loc[index, key] = val
         except:
             print(f"Error: video {video_id} does not exist")
     
