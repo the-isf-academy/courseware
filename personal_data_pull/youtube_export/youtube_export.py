@@ -1,6 +1,5 @@
 import pandas as pd
 import json
-import requests
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 
@@ -8,6 +7,7 @@ from simple_term_menu import TerminalMenu
 from tqdm import tqdm
 import sqlite3
 import sys
+import isodate
 
 def parse_json(file_loc):
     with open(file_loc) as json_file:
@@ -144,8 +144,8 @@ def yt_api_video(df, db_conn, db_cursor, table_name):
         # the video does not exist in db
         if video_exists_result == 0:
 
-            part_list = ['snippet','statistics','topicDetails']
-            request = youtube.videos().list(part=['snippet','statistics','topicDetails'],id=current_video_id)
+            part_list = ['snippet','statistics','topicDetails', 'contentDetails']
+            request = youtube.videos().list(part=['snippet','statistics','topicDetails', 'contentDetails'],id=current_video_id)
 
             # try:   
             response = request.execute()
@@ -158,7 +158,9 @@ def yt_api_video(df, db_conn, db_cursor, table_name):
                 'viewCount': None,
                 'likeCount': None,
                 'commentCount': None,
-                'topicCategories': None
+                'topicCategories': None,
+                'duration': None,
+                'defaultLanguage': None
                 }
             
             # print(response)
@@ -171,6 +173,12 @@ def yt_api_video(df, db_conn, db_cursor, table_name):
                             if key == 'topicCategories':
                                 video_topic_parsed = val[0].replace('https://en.wikipedia.org/wiki/','')
                                 video_data_dictionary[key] = video_topic_parsed
+
+                            elif key=="duration":
+                                duration = val
+                                duration_obj = isodate.parse_duration(duration)
+                                total_seconds = duration_obj.total_seconds()
+                                video_data_dictionary[key] = total_seconds
 
                             elif key in video_data_dictionary:
                                 video_data_dictionary[key] = val
@@ -185,17 +193,7 @@ def yt_api_video(df, db_conn, db_cursor, table_name):
 
                 print(f"Success [new]: video_id {current_video_id}")
 
-                ### process channel info
-
-                current_channle_id = video_data_dictionary['channelId']
-
-                cursor.execute("SELECT EXISTS (SELECT 1 FROM video_db WHERE channelId = ? and channelViewCount IS NULL)", (current_channle_id,)) 
-
-                channel_data_exists = cursor.fetchone()[0] 
-
-                # if channel_data_exists != 0:
-                #     get_channel_stats_api()
-
+              
 
             # except:
             #     print(f"ERROR: video_id {current_video_id}")
@@ -286,7 +284,7 @@ if __name__ == '__main__':
             print("-"*20)
             print("Fetching Youtube video stats...")
 
-            conn = sqlite3.connect("youtube.db")
+            conn = sqlite3.connect("youtube5.db")
             cursor = conn.cursor()
 
             yt_api_video(json_parsed_df, conn, cursor, "video_db")

@@ -6,16 +6,18 @@ import sqlite3
 conn = sqlite3.connect("youtube.db")
 cursor = conn.cursor()
 
-# cursor.execute('''CREATE TABLE video_db (
-#                     title TEXT,
-#                     video_id TEXT,
-#                     channelId TEXT,
-#                     channelTitle TEXT,
-#                     viewCount INTEGER,
-#                     likeCount INTEGER,
-#                     commentCount INTEGER,
-#                     topicCategories TEXT
-#                 )''')
+cursor.execute('''CREATE TABLE video_db (
+                    title TEXT,
+                    video_id TEXT,
+                    channelId TEXT,
+                    channelTitle TEXT,
+                    viewCount INTEGER,
+                    likeCount INTEGER,
+                    commentCount INTEGER,
+                    topicCategories TEXT,
+                    duration FLOAT, 
+                    defaultLanguage TEXT
+                )''')
 
 
 # cursor.execute('''
@@ -35,11 +37,11 @@ cursor = conn.cursor()
 # channel_data_exists = cursor.fetchone()[0] 
 # print(channel_data_exists)
 
-cursor.execute("SELECT * FROM video_db WHERE video_id = ?", ("UCxZA5UZYFb7_O58Psi6Qdrg",))
-row = cursor.fetchone()
-column_names = [description[0] for description in cursor.description]
-row_dict = dict(zip(column_names, row))
-print(row_dict)
+# cursor.execute("SELECT * FROM video_db WHERE video_id = ?", ("UCxZA5UZYFb7_O58Psi6Qdrg",))
+# row = cursor.fetchone()
+# column_names = [description[0] for description in cursor.description]
+# row_dict = dict(zip(column_names, row))
+# print(row_dict)
 
 
 conn.commit()
