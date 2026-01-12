@@ -16,7 +16,11 @@ cursor.execute('''CREATE TABLE video_db (
                     commentCount INTEGER,
                     topicCategories TEXT,
                     duration FLOAT, 
-                    defaultLanguage TEXT
+                    defaultLanguage TEXT, 
+                    channelSubscriberCount INTEGER,
+                    channelTotalVideoCount INTEGER,
+                    channelCountry TEXT,
+                    channelTotalViewCount INTEGER               
                 )''')
 
 
