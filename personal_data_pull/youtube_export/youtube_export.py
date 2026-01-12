@@ -8,6 +8,8 @@ from tqdm import tqdm
 import sqlite3
 import sys
 import isodate
+import pytz
+from datetime import datetime, timedelta
 
 def parse_json(file_loc):
     with open(file_loc) as json_file:
@@ -210,12 +212,29 @@ def yt_api_video(df, db_conn, db_cursor, table_name):
   
 
 def db_to_csv(parsed_df, cursor):
-    pbar = tqdm(total= len(parsed_df.index))
 
-    parsed_df = parsed_df[["video_id","datetime"]]
+
+    pbar = tqdm(total=len(parsed_df.index))
+
+    parsed_df = parsed_df[["video_id", "datetime"]]
+
+    # Prepare new columns
+    parsed_df["date"] = ''
+    parsed_df["time_hkt"] = ''
 
     for index, row in parsed_df.iterrows():
         pbar.update(1)
+
+        # Separate date and time, convert to HKT
+        dt_str = row["datetime"]
+        try:
+            dt_utc = datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+        except ValueError:
+            # fallback if no microseconds
+            dt_utc = datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%SZ")
+        dt_hkt = dt_utc + timedelta(hours=8)
+        parsed_df.loc[index, "date"] = dt_hkt.strftime("%Y-%m-%d")
+        parsed_df.loc[index, "time_hkt"] = dt_hkt.strftime("%H:%M:%S")
 
         video_id = row['video_id']
 
