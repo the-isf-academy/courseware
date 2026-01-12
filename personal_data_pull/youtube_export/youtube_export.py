@@ -42,7 +42,7 @@ def parse_json(file_loc):
 def yt_api_channel(conn):
     cursor = conn.cursor()
 
-    channelId_list = cursor.execute("SELECT channelId FROM video_db WHERE channelViewCount IS NULL OR channelId = ''").fetchall()
+    channelId_list = cursor.execute("SELECT channelId FROM video_db WHERE channelTotalViewCount IS NULL OR channelId = ''").fetchall()
     pbar = tqdm(total= len(channelId_list))
 
     print('channels',len(channelId_list))
@@ -52,7 +52,7 @@ def yt_api_channel(conn):
 
         current_channel_id = channel_id[0]
 
-        cursor.execute("SELECT EXISTS (SELECT 1 FROM video_db WHERE channelId = ? and channelViewCount IS NULL)", (current_channel_id,)) 
+        cursor.execute("SELECT EXISTS (SELECT 1 FROM video_db WHERE channelId = ? and channelTotalViewCount IS NULL)", (current_channel_id,)) 
 
         channel_data_exists = cursor.fetchone()[0] 
 
@@ -68,15 +68,12 @@ def yt_api_channel(conn):
                 'viewCount': None,
                 'subscriberCount': None,
                 'videoCount': None,
-                'hiddenSubscriberCount': None,
-                'videoCount': None,
                 'country': None,
                 }
             
             request = youtube.channels().list(part=part_list,id=current_channel_id)
             response = request.execute()
             # print(response)
-
             try:
                 if 'items' in response:
                     for yt_part_param,val in response['items'][0].items():
@@ -85,8 +82,13 @@ def yt_api_channel(conn):
                                     if key in channel_data_dictionary:
                                         channel_data_dictionary[key] = val
                     
-                    channel_data_dictionary['channelViewCount'] = channel_data_dictionary.pop('viewCount')
-                    channel_data_dictionary['channelVideoCount'] = channel_data_dictionary.pop('videoCount')
+                    channel_data_dictionary['channelTotalViewCount'] = channel_data_dictionary.pop('viewCount')
+                    channel_data_dictionary['channelTotalVideoCount'] = channel_data_dictionary.pop('videoCount')
+                    channel_data_dictionary['channelCountry'] = channel_data_dictionary.pop('country')
+                    channel_data_dictionary['channelSubscriberCount'] = channel_data_dictionary.pop('subscriberCount')
+
+
+
 
                     # print(channel_data_dictionary)
 
@@ -98,7 +100,7 @@ def yt_api_channel(conn):
 
             except:
                 print(f"ERROR: channel_id {current_channel_id}")
-                print(response)
+                # print(response)
 
         else:
             print(f"Channel Exists in db: channel_id {current_channel_id}")
@@ -284,7 +286,7 @@ if __name__ == '__main__':
             print("-"*20)
             print("Fetching Youtube video stats...")
 
-            conn = sqlite3.connect("youtube5.db")
+            conn = sqlite3.connect("youtube.db")
             cursor = conn.cursor()
 
             yt_api_video(json_parsed_df, conn, cursor, "video_db")
